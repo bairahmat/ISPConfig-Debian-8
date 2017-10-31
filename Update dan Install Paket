@@ -85,7 +85,7 @@ Kemudian restart mysql :
 ## Install Amavisd-new, SpamAssassin And Clamav
   `apt-get install amavisd-new spamassassin clamav clamav-daemon zoo unzip bzip2 arj nomarch lzop cabextract apt-listchanges libnet-ldap-perl libauthen-sasl-perl clamav-docs daemon libio-string-perl libio-socket-ssl-perl libnet-ident-perl zip libnet-dns-perl`
  
- ## Install Apache2, PHP5, phpMyAdmin, FCGI, suExec, Pear, And mcrypt
+## Install Apache2, PHP5, phpMyAdmin, FCGI, suExec, Pear, And mcrypt
   `apt-get install apache2 apache2.2-common apache2-doc apache2-mpm-prefork apache2-utils libexpat1 ssl-cert libapache2-mod-php5 php5 php5-common php5-gd php5-mysql php5-imap phpmyadmin php5-cli php5-cgi libapache2-mod-fcgid apache2-suexec php-pear php-auth php5-mcrypt mcrypt php5-imagick imagemagick libruby libapache2-mod-python php5-curl php5-intl php5-memcache php5-memcached php5-pspell php5-recode php5-sqlite php5-tidy php5-xmlrpc php5-xsl memcached libapache2-mod-passenger`
  
  Kita akan melihat beberapa pertanyaan berikut:
@@ -94,12 +94,22 @@ Kemudian restart mysql :
    > Enter the password of the administrative user? <- yourrootmysqlpassword
    > Enter the phpmyadmin application password? <-  Just press enter
 
+Kemudian jalankan perintah berikut untuk mengaktifkan modul Apache suexec, rewrite, ssl, actions, dan include (plus dav, dav_fs, dan auth_digest jika kita ingin menggunakan WebDAV):
+  `a2enmod suexec rewrite ssl actions include dav_fs dav auth_digest cgi`
+  `service apache2 restart`
+  `apt-get install apache2-dev build-essential autoconf automake libtool flex bison debhelper binutils`
 
+## Install XCache and PHP-FPM
+XCache adalah cacing opcode PHP yang terbuka dan terbuka untuk caching dan mengoptimalkan kode perantara PHP. 
+Sangat disarankan untuk menginstal Xcache untuk mempercepat halaman PHP kita.
+  `apt-get install php5-xcache`
 
-  
+Kemudian restart Apache:
+  `service apache2 restart`  
 
+Install PHP-FPM
+  `apt-get install libapache2-mod-fastcgi php5-fpm`
 
- 
- 
-
-
+Pastikan kita mengaktifkan modul PHP-FPM dan restart Apache:
+  `a2enmod actions fastcgi alias
+  `service apache2 restart`
