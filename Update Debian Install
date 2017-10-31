@@ -1,0 +1,15 @@
+## Update Instalasi Debian Kita
+Pertama, pastikan bahwa /etc/apt/sources.list kita berisi repositori jessie /update (ini memastikan Anda selalu mendapatkan update keamanan terbaru), dan bahwa repositori contrib dan non-free diaktifkan (beberapa paket seperti libapache2- mod-fastcgi tidak ada dalam repositori utama).
+`nano /etc/apt/sources.list`
+
+> deb http://ftp.us.debian.org/debian/ jessie main contrib non-free
+> deb-src http://ftp.us.debian.org/debian/ jessie main contrib non-free
+
+> deb http://security.debian.org/ jessie/updates main contrib non-free
+> deb-src http://security.debian.org/ jessie/updates main contrib non-free
+
+Run:
+`apt-get update`
+
+Untuk update apt package database :
+`apt-get upgrade`   => and to install the latest updates (if there are any).
