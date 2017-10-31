@@ -1,6 +1,5 @@
 # Instalasi ISPConfig di Debian 8
-Pertama pastikan Server Debian kita sudah tersambung ke Internet, 
-karena kita akan Download Paket-paket yang ada nantinya.
+Pertama pastikan Server Debian kita sudah tersambung ke Internet, karena kita akan Download Paket-paket yang ada nantinya.
 
 ## Install the SSH server (Optional)
 Jika kita tidak menginstal server OpenSSH selama instalasi sistem, kita dapat melakukannya sekarang:
