@@ -31,3 +31,14 @@ server1
 terakhir reboot server untuk menerapkan perubahan:
   `reboot`
 
+Login lagi dan periksa apakah nama host sudah benar, dengan perintah ini:
+`hostname`
+`hostname -f`
+Outputnya akan seperti ini:
+
+root@server1:/tmp# hostname
+server1
+
+root@server1:/tmp# hostname -f
+server1.example.com
+
