@@ -1,1 +1,34 @@
+# Instalasi ISPConfig di Debian 8
+Pertama pastikan Server Debian kita sudah tersambung ke Internet, 
+karena kita akan Download Paket-paket yang ada nantinya.
+
+## Install the SSH server (Optional)
+Jika kita tidak menginstal server OpenSSH selama instalasi sistem, kita dapat melakukannya sekarang:
+  `apt-get install ssh openssh-server`
+
+Sekarang kita dapat menggunakan klien SSH seperti Putty dan terhubung ke server Debian kita
+langkah selanjutnya merubah permitted login ssh di server kita :
+  `pico /etc/ssh/sshd_config` => rubah PermitRootLogin menjadi yes : PermitRootLogin yes
+
+## Konfigurasi Hostname server
+Nama host server kita harus berupa subdomain seperti "server1.example.com". Jangan gunakan nama domain tanpa subdomain seperti "example.com" 
+sebagai hostname karena hal ini akan menimbulkan masalah nantinya dengan setup email kita. 
+
+Pertama, kita harus memeriksa nama host di / etc/hosts dan mengubahnya. Barisnya harus: "Alamat IP - ruang - hostname lengkap termasuk domain - ruang - subdomain bagian".
+Untuk nama host server1.example.com, berkasnya akan terlihat seperti ini:
+  `pico /etc/hosts`
+127.0.0.1       localhost.localdomain   localhost
+192.168.1.100   server1.example.com     server1
+# The following lines are desirable for IPv6 capable hosts
+::1     localhost ip6-localhost ip6-loopback
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+
+Kemudian edit the /etc/hostname file:
+  `pico /etc/hostname`
+
+Ini hanya berisi bagian subdomain:
+server1
+terakhir reboot server untuk menerapkan perubahan:
+  `reboot`
 
