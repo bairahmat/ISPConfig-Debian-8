@@ -178,5 +178,358 @@ Kemudian start the Mailman daemon:
   
 ## Install PureFTPd And Quota
 
+PureFTPd and quota dapat di install dengan perintah sebagai berikut:
+  `apt-get install pure-ftpd-common pure-ftpd-mysql quota quotatool`
+
+Edit file /etc/default/pure-ftpd-common
+  `pico /etc/default/pure-ftpd-common`
+  
+Pastikan start mode di set menjadi standalone, dan set VIRTUALCHROOT=true:
+
+[...]
+STANDALONE_OR_INETD=standalone
+[...]
+VIRTUALCHROOT=true
+[...]
+
+Kemudian kita konfigurasi PureFTPd to allow FTP and TLS sessions. 
+FTP adalah protokol yang sangat tidak aman karena semua password dan semua data ditransfer dalam bentuk teks yang jelas. 
+Dengan menggunakan TLS, keseluruhan komunikasi bisa dienkripsi, sehingga FTP jadi lebih aman.
+
+allow FTP and TLS sessions, jalankan perintah berikut :
+  `echo 1 > /etc/pure-ftpd/conf/TLS`
+  `mkdir -p /etc/ssl/private/`
+  `openssl req -x509 -nodes -days 7300 -newkey rsa:2048 -keyout /etc/ssl/private/pure-ftpd.pem -out /etc/ssl/private/pure-ftpd.pem`
+  `chmod 600 /etc/ssl/private/pure-ftpd.pem`
+  `service pure-ftpd-mysql restart`
+
+## Install BIND DNS Server
+  `apt-get install bind9 dnsutils`
+Tunggu sampai proses install selesai
+
+## Install Vlogger, Webalizer, And AWStats
+  `apt-get install vlogger webalizer awstats geoip-database libclass-dbi-mysql-perl`
+
+Setelah itu buka file : /etc/cron.d/awstats
+  `pico /etc/cron.d/awstats`
+
+dan kasih comment(#) semua di file ini:
+#MAILTO=root
+#*/10 * * * * www-data [ -x /usr/share/awstats/tools/update.sh ] && /usr/share/awstats/tools/update.sh
+# Generate static reports:
+#10 03 * * * www-data [ -x /usr/share/awstats/tools/buildstatic.sh ] && /usr/share/awstats/tools/buildstatic.sh
+
+## Install Jailkit
+Jailkit hanya dibutuhkan jika kita ingin chroot pengguna SSH. 
+Jailkit dapat diinstal dengan perintah sebagai berikut (penting: Jailkit harus diinstal sebelum ISPConfig - tidak dapat diinstal setelahnya):
+  `apt-get install build-essential autoconf automake libtool flex bison debhelper binutils`
+
+  `cd /tmp`
+  `wget http://olivier.sessink.nl/jailkit/jailkit-2.17.tar.gz`
+  `tar xvfz jailkit-2.17.tar.gz`
+  `cd jailkit-2.17`
+  `./debian/rules binary`
+
+## Install fail2ban
+Ini opsional tapi sangat disarankan, karena monitor ISPConfig dapat menampilkan log:
+  `apt-get install fail2ban`
+
+To make fail2ban monitor PureFTPd and Dovecot, create the file /etc/fail2ban/jail.local:
+  `pico /etc/fail2ban/jail.local`
+
+  > [pureftpd]
+  > enabled  = true
+  > port     = ftp  
+  > filter   = pureftpd
+  > logpath  = /var/log/syslog
+  > maxretry = 3
+
+  > [dovecot-pop3imap]
+  > enabled = true
+  > filter = dovecot-pop3imap
+  > action = iptables-multiport[name=dovecot-pop3imap, port="pop3,pop3s,imap,imaps", protocol=tcp]
+  > logpath = /var/log/mail.log
+  > maxretry = 5
+
+  > [postfix-sasl]
+  > enabled  = true
+  > port     = smtp
+  > filter   = postfix-sasl
+  > logpath  = /var/log/mail.log
+  > maxretry = 3
+
+## Install squirrelmail
+  `apt-get install squirrelmail`
+
+konfigurasi SquirrelMail dengan perintah sebagai berikut:
+  `squirrelmail-configure`
+
+SquirrelMail Configuration : Read: config.php (1.4.0)
+---------------------------------------------------------
+Main Menu --
+1.  Organization Preferences
+2.  Server Settings
+3.  Folder Defaults
+4.  General Options
+5.  Themes
+6.  Address Books
+7.  Message of the Day (MOTD)
+8.  Plugins
+9.  Database
+10. Languages
+
+D.  Set pre-defined settings for specific IMAP servers
+C   Turn color on
+S   Save data
+Q   Quit
+
+Command >> <-- D
+
+SquirrelMail Configuration : Read: config.php
+---------------------------------------------------------
+While we have been building SquirrelMail, we have discovered some
+preferences that work better with some servers that don't work so
+well with others.  If you select your IMAP server, this option will
+set some pre-defined settings for that server.
+
+Please note that you will still need to go through and make sure
+everything is correct.  This does not change everything.  There are
+only a few settings that this will change.
+
+Please select your IMAP server:
+    bincimap    = Binc IMAP server
+    courier     = Courier IMAP server
+    cyrus       = Cyrus IMAP server
+    dovecot     = Dovecot Secure IMAP server
+    exchange    = Microsoft Exchange IMAP server
+    hmailserver = hMailServer
+    macosx      = Mac OS X Mailserver
+    mercury32   = Mercury/32
+    uw          = University of Washington's IMAP server
+    gmail       = IMAP access to Google mail (Gmail) accounts
+    quit        = Do not change anything
+Command >> <-- dovecot
+
+imap_server_type = dovecot
+         default_folder_prefix = 
+                  trash_folder = Trash
+                   sent_folder = Sent
+                  draft_folder = Drafts
+            show_prefix_option = false
+          default_sub_of_inbox = false
+show_contain_subfolders_option = false
+            optional_delimiter = detect
+                 delete_folder = false
+
+Press any key to continue... <-- press a key
+
+SquirrelMail Configuration : Read: config.php (1.4.0)
+---------------------------------------------------------
+Main Menu --
+1.  Organization Preferences
+2.  Server Settings
+3.  Folder Defaults
+4.  General Options
+5.  Themes
+6.  Address Books
+7.  Message of the Day (MOTD)
+8.  Plugins
+9.  Database
+10. Languages
+
+D.  Set pre-defined settings for specific IMAP servers
+C   Turn color on
+S   Save data
+Q   Quit
+
+Command >> <-- S
+
+SquirrelMail Configuration : Read: config.php (1.4.0)
+---------------------------------------------------------
+Main Menu --
+1.  Organization Preferences
+2.  Server Settings
+3.  Folder Defaults
+4.  General Options
+5.  Themes
+6.  Address Books
+7.  Message of the Day (MOTD)
+8.  Plugins
+9.  Database
+10. Languages
+
+D.  Set pre-defined settings for specific IMAP servers
+C   Turn color on
+S   Save data
+Q   Quit
+
+Command >> <-- Q
+
+  `cd /etc/apache2/conf-enabled/`
+  `ln -s ../../squirrelmail/apache.conf squirrelmail.conf`
+  `service apache2 reload`
+
+Buka file /etc/apache2/conf-enabled/squirrelmail.conf
+  `nano /etc/apache2/conf-enabled/squirrelmail.conf`
+
+[...]
+<Directory /usr/share/squirrelmail>
+  Options FollowSymLinks
+  <IfModule mod_php5.c>
+    AddType application/x-httpd-php .php
+    php_flag magic_quotes_gpc Off
+    php_flag track_vars On
+    php_admin_flag allow_url_fopen Off
+    php_value include_path .
+    php_admin_value upload_tmp_dir /var/lib/squirrelmail/tmp
+    php_admin_value open_basedir /usr/share/squirrelmail:/etc/squirrelmail:/var/lib/squirrelmail:/etc/hostname:/etc/mailname
+    php_flag register_globals off
+  </IfModule>
+  <IfModule mod_dir.c>
+    DirectoryIndex index.php
+  </IfModule>
+
+  # access to configtest is limited by default to prevent information leak
+  <Files configtest.php>
+    order deny,allow
+    deny from all
+    allow from 127.0.0.1
+  </Files>
+</Directory>
+[...]
+
+Buat folder di directory /var/lib/squirrelmail/tmp
+  `mkdir /var/lib/squirrelmail/tmp`
+  `chown www-data /var/lib/squirrelmail/tmp`
+
+Restart apache2 
+  `service apache2 restart`
+  
+Sekarang kita dapat mengakses squirremail melalui :
+  > http://192.168.0.100/squirrelmail
+  > http://www.example.com/squirrelmail
+
+## Install ISPConfig 3
+
+Untuk install ISPConfig 3:
+  `cd /tmp`
+  `wget http://www.ispconfig.org/downloads/ISPConfig-3-stable.tar.gz`
+  `tar xfz ISPConfig-3-stable.tar.gz`
+  `cd ispconfig3_install/install/`
+  `php -q install.php`
+root@server1:/tmp/ispconfig3_install/install# php -q install.php
+--------------------------------------------------------------------------------
+ _____ ___________   _____              __ _         ____
+|_   _/  ___| ___ \ /  __ \            / _(_)       /__  \
+  | | \ `--.| |_/ / | /  \/ ___  _ __ | |_ _  __ _    _/ /
+  | |  `--. \  __/  | |    / _ \| '_ \|  _| |/ _` |  |_ |
+ _| |_/\__/ / |     | \__/\ (_) | | | | | | | (_| | ___\ \
+ \___/\____/\_|      \____/\___/|_| |_|_| |_|\__, | \____/
+                                              __/ |
+                                             |___/
+--------------------------------------------------------------------------------
 
 
+>> Initial configuration
+
+Operating System: Debian or compatible, unknown version.
+
+    Following will be a few questions for primary configuration so be careful.
+    Default values are in [brackets] and can be accepted with .
+    Tap in "quit" (without the quotes) to stop the installer.
+
+Select language (en,de) [en]: <-- ENTER
+Installation mode (standard,expert) [standard]: <-- ENTER
+Full qualified hostname (FQDN) of the server, eg server1.domain.tld  [server1.example.com]: <-- ENTER
+MySQL server hostname [localhost]: <-- ENTER
+MySQL root username [root]: <-- ENTER
+MySQL root password []: <-- yourrootsqlpassword
+MySQL database to create [dbispconfig]: <-- ENTER
+MySQL charset [utf8]: <-- ENTER
+
+Generating a 4096 bit RSA private key
+.............................................................++
+.........................................................................................................................++
+writing new private key to 'smtpd.key'
+-----
+You are about to be asked to enter information that will be incorporated
+into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,
+If you enter '.', the field will be left blank.
+-----
+Country Name (2 letter code) [AU]: <-- ENTER
+State or Province Name (full name) [Some-State]: <-- ENTER
+Locality Name (eg, city) []: <-- ENTER
+Organization Name (eg, company) [Internet Widgits Pty Ltd]: <-- ENTER
+Organizational Unit Name (eg, section) []: <-- ENTER
+Common Name (e.g. server FQDN or YOUR name) []: <-- ENTER
+Email Address []: <-- ENTER
+Configuring Jailkit
+Configuring Dovecot
+Configuring Spamassassin
+Configuring Amavisd
+Configuring Getmail
+Configuring Pureftpd
+Configuring BIND
+Configuring Apache
+Configuring Vlogger
+Configuring Apps vhost
+Configuring Bastille Firewall
+Configuring Fail2ban
+Installing ISPConfig
+ISPConfig Port [8080]: <-- ENTER
+
+Do you want a secure (SSL) connection to the ISPConfig web interface (y,n) [y]: <-- ENTER
+
+Generating RSA private key, 4096 bit long modulus
+.................................................................................................++
+........++
+e is 65537 (0x10001)
+You are about to be asked to enter information that will be incorporated
+into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,
+If you enter '.', the field will be left blank.
+-----
+Country Name (2 letter code) [AU]: <-- ENTER
+State or Province Name (full name) [Some-State]: <-- ENTER
+Locality Name (eg, city) []: <-- ENTER
+Organization Name (eg, company) [Internet Widgits Pty Ltd]: <-- ENTER
+Organizational Unit Name (eg, section) []: <-- ENTER
+Common Name (e.g. server FQDN or YOUR name) []: <-- ENTER
+Email Address []: <-- ENTER
+
+Please enter the following 'extra' attributes
+to be sent with your certificate request
+A challenge password []: <-- ENTER
+An optional company name []: <-- ENTER
+writing RSA key
+Configuring DBServer
+Installing ISPConfig crontab
+no crontab for root
+no crontab for getmail
+Restarting services ...
+Stopping MySQL database server: mysqld.
+Starting MySQL database server: mysqld ..
+Checking for tables which need an upgrade, are corrupt or were
+not closed cleanly..
+Stopping Postfix Mail Transport Agent: postfix.
+Starting Postfix Mail Transport Agent: postfix.
+Stopping amavisd: amavisd-new.
+Starting amavisd: amavisd-new.
+Stopping ClamAV daemon: clamd.
+Starting ClamAV daemon: clamd .
+Restarting IMAP/POP3 mail server: dovecot.
+[Tue May 07 02:36:22 2013] [warn] NameVirtualHost *:443 has no VirtualHosts
+[Tue May 07 02:36:22 2013] [warn] NameVirtualHost *:80 has no VirtualHosts
+[Tue May 07 02:36:23 2013] [warn] NameVirtualHost *:443 has no VirtualHosts
+[Tue May 07 02:36:23 2013] [warn] NameVirtualHost *:80 has no VirtualHosts
+Restarting web server: apache2 ... waiting .
+Restarting ftp server: Running: /usr/sbin/pure-ftpd-mysql-virtualchroot -l mysql:/etc/pure-ftpd/db/mysql.conf -l pam -H -O clf:/var/log/pure-ftpd/transfer.log -Y 1 -D -u 1000 -A -E -b -8 UTF-8 -B
+Installation completed.
+
+Kita dapat access ISPConfig 3 di http(s)://server1.example.com:8080/ or http(s)://192.168.0.100:8080
+Login : username : admin password : admin
