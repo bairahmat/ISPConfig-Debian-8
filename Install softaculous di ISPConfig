@@ -1,0 +1,91 @@
+# Install Softaculous di ISPConfig
+
+Sebelum memulai instalasi pastikan ionCube Loader diaktifkan. Jika tidak, kita tidak akan bisa Install Softaculous. 
+The ionCube Loader dapat didownload di halaman Download ionCube.
+
+## Install ionCube Loader 
+
+Download ionCube Loader dalam format tar.gz dan extrack:
+
+Untuk 64Bit x86_64 Linux:
+  `cd /tmp`
+  `wget http://downloads3.ioncube.com/loader_downloads/ioncube_loaders_lin_x86-64.tar.gz`
+  `tar xfz ioncube_loaders_lin_x86-64.tar.gz`
+
+Untuk 32Bit i386 Linux:
+  `cd /tmp`
+  `wget http://downloads3.ioncube.com/loader_downloads/ioncube_loaders_lin_x86.tar.gz`
+  `tar xfz ioncube_loaders_lin_x86.tar.gz`
+
+Nama files setelah di extrack adalah sebuah folder dengan nama "ioncube".
+
+pindahkan folder "ioncube" tersebut ke /usr/local
+  `mv ioncube /usr/local
+
+## Configure Ioncube loader on Debian and Ubuntu
+Debian and Ubuntu use separate php.ini files for PHP CLI (Commandline), CGI, Apache2 and FPM mode. The file paths are:
+  > /etc/php5/apache2/php.ini
+  > /etc/php5/cli/php.ini
+  > /etc/php5/cgi/php.ini
+  > /etc/php5/fpm/php.ini
+
+Apache2 mod_php
+  `pico /etc/php5/apache2/php.ini`
+
+Command line PHP (CLI)
+  `pico /etc/php5/cli/php.ini`
+
+PHP CGI (used for CGI and Fast_CGI modes)
+  `pico /etc/php5/cgi/php.ini`
+
+PHP FPM
+  `pico /etc/php5/fpm/php.ini`
+
+Tambahkan  "zend_extension =" di masing-masing php mode tersebut di baris paling atas :
+
+  "zend_extension = /usr/local/ioncube/ioncube_loader_lin_5.6.so" (tanpa tanda petik)
+
+Kemudian simpan file dan restart apache webserver and php-fpm:
+
+service apache2 restart
+service php5-fpm restart
+
+Cek jalan apa tidak ioncube loader dengan perintah berikut :
+  `php -v`
+  
+root@vhost:~# php -v
+PHP 5.6.30-0+deb8u1 (cli) (built: Feb  8 2017 08:50:21)
+Copyright (c) 1997-2016 The PHP Group
+Zend Engine v2.6.0, Copyright (c) 1998-2016 Zend Technologies
+    with XCache v3.2.0, Copyright (c) 2005-2014, by mOo
+    with the ionCube PHP Loader (enabled) + Intrusion Protection from ioncube24.com (unconfigured) v10.0.4, Copyright (c) 2002-2017, by ionCube Ltd.
+    with Zend OPcache v7.0.6-dev, Copyright (c) 1999-2016, by Zend Technologies
+    with XCache Optimizer v3.2.0, Copyright (c) 2005-2014, by mOo
+    with XCache Cacher v3.2.0, Copyright (c) 2005-2014, by mOo
+    with XCache Coverager v3.2.0, Copyright (c) 2005-2014, by mOo
+
+Kalau tampilan pesan seperti ditas, berarti ionCube Loader sudah berjalan di server kita
+
+## Install Softaculous
+
+  `cd /tmp`
+  `wget -N http://files.softaculous.com/install.sh`
+  `chmod 755 install.sh`
+  `./install.sh`
+
+Tunggu sampai proses instalasi selesai dan sukses
+
+### Beberapa issue
+
+Blank Page : Halaman kosong saat Softaculous diakses.
+  Permasalahannya : PHP Extension mysql dan mysql.so tidak dimuat oleh Softaculous
+Solusi: Tambahkan baris berikut di /usr/local/softaculous/php.ini
+
+extension=mysql.so
+extension=mysqli.so
+extension=curl.so
+extension=soap.so
+extension=posix.so
+extension=json.so
+
+" Semoga berhasil ....!! "
