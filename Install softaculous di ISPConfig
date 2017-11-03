@@ -1,4 +1,6 @@
 # Install Softaculous di ISPConfig
+Softaculous adalah installer otomatis untuk cPanel dan DirectAdmin. 
+Tidak seperti installer otomatis lainnya Softaculous jauh lebih cepat, dirancang dengan baik dan menginstal semua skrip hanya dalam SATU LANGKAH
 
 Sebelum memulai instalasi pastikan ionCube Loader diaktifkan. Jika tidak, kita tidak akan bisa Install Softaculous. 
 The ionCube Loader dapat didownload di halaman Download ionCube.
@@ -78,7 +80,7 @@ Tunggu sampai proses instalasi selesai dan sukses
 ### Beberapa issue
 
 Blank Page : Halaman kosong saat Softaculous diakses.
-  Permasalahannya : PHP Extension mysql dan mysql.so tidak dimuat oleh Softaculous
+Permasalahannya : PHP Extension mysql dan mysql.so tidak dimuat oleh Softaculous
 Solusi: Tambahkan baris berikut di /usr/local/softaculous/php.ini
 
 extension=mysql.so
